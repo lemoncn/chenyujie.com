@@ -184,11 +184,13 @@
               }
             }catch(e){}
           }else{
-            var ffVersionArr = agent.match(/firefox\/[\d.]+/gi);
-            var ffVersion = Number(ffVersionArr[0].split('/')[1].split('.')[0]);
-            if(ffVersion>72){
-              isPcSupport = true;
-            }
+            try{
+              var ffVersionArr = agent.match(/firefox\/[\d.]+/gi);
+              var ffVersion = Number(ffVersionArr[0].split('/')[1].split('.')[0]);
+              if(ffVersion>72){
+                isPcSupport = true;
+              }
+            }catch(e){}
           }
           debugger;
           // 不支持出提示
