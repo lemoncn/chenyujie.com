@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,user-scalable=no"
+    />
+    <title>云电脑</title>
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      #browser-tips {
+        position: fixed;
+        display: none;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        display: none;
+        text-align: center;
+        background: #fff;
+      }
+      #browser-tips .tips-img {
+        margin-top: 10%;
+      }
+      #browser-tips .tips-body {
+        font-size: 18px;
+        line-height: 1.5;
+        max-width: 360px;
+        margin: 15px auto;
+        text-align: center;
+      }
+
+      #browser-tips .tips-body a {
+        text-decoration: none;
+        color: #409eff;
+      }
+      #browser-tips .tips-fn {
+        margin-top: 40px;
+      }
+      #browser-tips .link-chrome,
+      #browser-tips .link-client {
+        background: #ffffff;
+        border: 1px solid #287bff;
+        border-radius: 4px;
+        color: #287bff;
+        font-size: 18px;
+        padding: 10px 20px;
+        text-decoration: none;
+        margin: 0 10px;
+      }
+      #browser-tips .link-client {
+        background: #287bff;
+        color: #fff;
+      }
+      #browser-tips .link-close {
+        background: #ffffff;
+        border: 1px solid #287bff;
+        border-radius: 4px;
+        color: #287bff;
+        font-size: 18px;
+        padding: 10px 20px;
+        text-decoration: none;
+        margin: 0 auto;
+      }
+
+      #region-public-tips {
+        display: none;
+      }
+      #region-guangyan-tips {
+        display: none;
+      }
+
+      #pc-tips {
+        display: none;
+      }
+      #mobile-tips {
+        display: none;
+      }
+      #browser-tips-close-btn {
+        display: none;
+      }
+      #normal {
+        display: block;
+      }
+
+
+/* *{display: block!important;} */
+
+    </style>
+    <link href="https://eplatform.bgzs.site:1443/webclient/web/css/main.14b8df46c1ec7b906277.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="normal">正常页面</div>
+    <div id="browser-tips">
+      <div class="tips-img"><img src="https://eplatform.bgzs.site:1443/webclient/web/static/no-desktop.png" alt="" /></div>
+      <div id="pc-tips">
+        <div class="tips-body">
+          当前浏览器版本过低，建议您 <a href="https://www.google.cn/intl/zh-CN/chrome/" target="_blank">更新浏览器</a> 或 下载客户端体验。
+        </div>
+        <div class="tips-fn">
+          <a class="link-client" href="<%= htmlWebpackPlugin.options.downloadURL %>" target="_blank">下载客户端</a>
+        </div>
+      </div>
+      <div id="mobile-tips">
+        <div class="tips-body">
+          <!-- <%= htmlWebpackPlugin.options.title %> 暂未适配移动设备，可能会影响使用体验。 <br>
+          如您想抢先体验，建议使用 Android 9以上的手机，配合横屏模式访问。 -->
+          移动设备暂未适配，如继续体验建议使用Android9.0、iOS11、鸿蒙2.0以上的移动设备，并使用横屏模式访问。
+        </div>
+        <div class="tips-fn">
+          <button class="link-close" id="browser-tips-close-btn">继续体验</a>
+        </div>
+      </div>
+
+    </div>
+    <script>
+      (function(){
+        var $tips = document.getElementById('browser-tips');
+        var $tipsPc = document.getElementById('pc-tips');
+        var $tipsMobile = document.getElementById('mobile-tips');
+        var $tipsCloseButton = document.getElementById('browser-tips-close-btn');
+        var $normal = document.getElementById('normal');
+
+        var agent = navigator.userAgent.toLowerCase();
+        var isAndroid = /(android)/i.test(agent);
+        var isiOS= /(iphone|ipad|ipod|ios)/i.test(agent);
+
+
+        // 抢先体验处理（主要是移动端触发）
+        $tipsCloseButton.addEventListener('click', function(){
+          $tips.style.display = 'none';
+          $normal.style.display = 'block';
+        });
+
+        // 移动端处理
+        function fMobProcessing(){
+          $normal.style.display = 'none';
+          $tips.style.display = 'block';
+          $tipsMobile.style.display = 'block';
+
+          // 判断系统版本是否支持使用
+          var iosVer = 0;
+          var andVer = 0;
+
+
+          if(isAndroid){
+            try{
+              var _v_info = agent.match(/android [\d._]+/gi);
+              andVer = (_v_info + "").replace(/[^0-9|_.]/ig, "").replace(/_/ig, "."); //得到版本号
+              andVer = parseInt(andVer.split('.')[0]);// 得到版本号第一位
+            }catch(e){}
+          }else{
+            try{
+              var iosVersionArr = agent.match(/os (.*?) like mac os/);
+              iosVer = Number(iosVersionArr[1].match(/\d+/)[0]);
+            }catch(e){}
+          }
+
+          // 移动设备白名单 放开体验
+          if (iosVer>=11 || andVer>=9) {
+            $tipsCloseButton.style.display = 'block';
+          }
+        }
+
+
+        // 其它设备处理
+        function fCommonProcessing(){
+          // 其它设备放开chrome和ff
+          var isChrome = /(chrome)/i.test(agent);
+          var isFirefox = /(firefox)/i.test(agent);
+          var isPcSupport = false;
+
+          if(isChrome){
+            try{
+              var chromeVerArr = agent.match(/chrome\/[\d.]+/gi);
+              var chromeVer = Number(chromeVerArr[0].split('/')[1].split('.')[0]);
+              if(chromeVer>69){
+                isPcSupport = true;
+              }
+            }catch(e){}
+          }else{
+            var ffVersionArr = agent.match(/firefox\/[\d.]+/gi);
+            var ffVersion = Number(ffVersionArr[0].split('/')[1].split('.')[0]);
+            if(ffVersion>72){
+              isPcSupport = true;
+            }
+          }
+          debugger;
+          // 不支持出提示
+          if(!isPcSupport){
+            // pc端不兼容提示
+            $tips.style.display = 'block';
+            $tipsPc.style.display = 'block';
+            $normal.style.display = 'none';
+          }
+
+        }
+
+        // 移动设备判断
+        if(isAndroid || isiOS){
+          fMobProcessing();
+        }else{
+          fCommonProcessing();
+        }
+
+      })();
+    </script>
+  </body>
+</html>
